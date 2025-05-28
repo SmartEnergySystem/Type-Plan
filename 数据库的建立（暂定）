@@ -1,0 +1,181 @@
+数据库选型
+需求	选型方案
+高频时序数据	PostgreSQL + TimescaleDB（时序数据优化）
+逻辑外键支持	PostgreSQL
+复杂查询能力	PostgreSQL
+----------------------------
+-- 1. 用户表 (users)
+------------------------------
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(32) UNIQUE NOT NULL,
+    password VARCHAR(64) NOT NULL CHECK (LENGTH(password) >= 8),
+    status INT NOT NULL DEFAULT 1 CHECK (status IN (0, 1)),
+    type INT NOT NULL DEFAULT 0 CHECK (type IN (0, 1)),
+    createtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatetime TIMESTAMP,
+    create_user BIGINT, -- 逻辑外键 -> users.id
+    update_user BIGINT  -- 逻辑外键 -> users.id
+);
+
+------------------------------
+-- 2. 设备表 (devices)
+------------------------------
+CREATE TABLE devices (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL, -- 逻辑外键 -> users.id
+    name VARCHAR(32) UNIQUE NOT NULL,
+    status INT NOT NULL DEFAULT 0 CHECK (status IN (-1, 0, 1)),
+    mode_id BIGINT,         -- 逻辑外键 -> device_mode.id
+    default_mode_id BIGINT, -- 逻辑外键 -> device_mode.id
+    policy_id BIGINT        -- 逻辑外键 -> policies.id
+);
+
+-- 联合索引
+CREATE UNIQUE INDEX idx_devices_user_name ON devices(user_id, name);
+
+------------------------------
+-- 3. 设备运行模式表 (device_mode)
+------------------------------
+CREATE TABLE device_mode (
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    name VARCHAR(32) NOT NULL,
+    power INT NOT NULL CHECK (power >= 0),
+    UNIQUE (device_id, name) -- 同一设备下模式名唯一
+);
+
+------------------------------
+-- 4. 设备运行日志表 (device_data) - 时序优化
+------------------------------
+CREATE TABLE device_data (
+    id BIGSERIAL,
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL CHECK (end_time > start_time),
+    status INT NOT NULL CHECK (status IN (-1, 0, 1)),
+    mode_id BIGINT NOT NULL,   -- 逻辑外键 -> device_mode.id
+    policy_id BIGINT,          -- 逻辑外键 -> policies.id
+    energy_consumption INT NOT NULL CHECK (energy_consumption >= 0)
+) USING TimescaleDB;
+
+-- 转换为时序超表
+SELECT create_hypertable('device_data', 'start_time', chunk_time_interval => INTERVAL '1 week');
+
+-- 索引
+CREATE INDEX idx_device_data_device_time ON device_data(device_id, start_time DESC);
+
+------------------------------
+-- 5. 策略表 (policies)
+------------------------------
+CREATE TABLE policies (
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    name VARCHAR(32) UNIQUE NOT NULL,
+    createtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatetime TIMESTAMP
+);
+
+------------------------------
+-- 6. 策略条目表 (policy_item)
+------------------------------
+CREATE TABLE policy_item (
+    id BIGSERIAL PRIMARY KEY,
+    policy_id BIGINT NOT NULL, -- 逻辑外键 -> policies.id
+    start_time TIME NOT NULL CHECK (
+        start_time >= '00:00:00' AND start_time <= '23:59:59'
+    ),
+    end_time TIME NOT NULL CHECK (
+        end_time > start_time AND end_time <= '23:59:59'
+    ),
+    mode_id BIGINT NOT NULL    -- 逻辑外键 -> device_mode.id
+);
+
+-- 时间重叠校验触发器
+CREATE OR REPLACE FUNCTION check_policy_time_overlap()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM policy_item
+        WHERE policy_id = NEW.policy_id
+        AND tsrange(start_time, end_time) && tsrange(NEW.start_time, NEW.end_time)
+    ) THEN
+        RAISE EXCEPTION '策略时间范围重叠';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_policy_item_time
+BEFORE INSERT OR UPDATE ON policy_item
+FOR EACH ROW EXECUTE FUNCTION check_policy_time_overlap();
+
+------------------------------
+-- 7. 设备-策略表 (device_policy)
+------------------------------
+CREATE TABLE device_policy (
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    policy_id BIGINT NOT NULL, -- 逻辑外键 -> policies.id
+    createtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (device_id, policy_id) -- 防止重复关联
+);
+
+------------------------------
+-- 8. 批量操作表 (batch)
+------------------------------
+CREATE TABLE batch (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL, -- 逻辑外键 -> users.id
+    name VARCHAR(32) UNIQUE NOT NULL,
+    createtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatetime TIMESTAMP
+);
+
+------------------------------
+-- 9. 批量操作条目表 (batch_item)
+------------------------------
+CREATE TABLE batch_item (
+    id BIGSERIAL PRIMARY KEY,
+    batch_id BIGINT NOT NULL,  -- 逻辑外键 -> batch.id
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    type INT NOT NULL CHECK (type IN (0, 1)),
+    status INT CHECK (status IN (-1, 0, 1)),
+    mode_id BIGINT,            -- 逻辑外键 -> device_mode.id
+    policy_id BIGINT,          -- 逻辑外键 -> policies.id
+    CHECK (
+        (type = 0 AND status IS NOT NULL AND mode_id IS NOT NULL) OR
+        (type = 1 AND policy_id IS NOT NULL)
+    )
+);
+
+------------------------------
+-- 10. 警报日志表 (alert_data)
+------------------------------
+CREATE TABLE alert_data (
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL, -- 逻辑外键 -> devices.id
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    level INT NOT NULL CHECK (level IN (0, 1, 2)),
+    status INT NOT NULL CHECK (status IN (-1, 0, 1)),
+    mode_id BIGINT NOT NULL,   -- 逻辑外键 -> device_mode.id
+    policy_id BIGINT,          -- 逻辑外键 -> policies.id
+    message VARCHAR(200) NOT NULL
+);
+
+-- 索引
+CREATE INDEX idx_alert_data_device_time ON alert_data(device_id, time DESC);
+
+------------------------------
+--11.数据清洗策略
+------------------------------
+-- 自动删除30天前的日志数据
+SELECT add_retention_policy('device_data', INTERVAL '30 days');
+
+-- 每月归档报告数据
+CREATE PROCEDURE archive_reports() AS $$
+BEGIN
+    INSERT INTO reports_archive SELECT * FROM reports WHERE generated_at < NOW() - INTERVAL '1 year';
+    DELETE FROM reports WHERE generated_at < NOW() - INTERVAL '1 year';
+END;
+$$ LANGUAGE plpgsql;
