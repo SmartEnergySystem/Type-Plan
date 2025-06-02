@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月2日（未完成）
+**更新时间**：2025年6月2日
 **作者**：Huangyijun
 
  
@@ -17,12 +17,12 @@
 
 | 接口名称       | 方法 | 端点                        | 描述                                                         | 请求体                                                | 响应（data部分）             |
 | -------------- | ---- | --------------------------- | ------------------------------------------------------------ | ----------------------------------------------------- | ---------------------------- |
-| 用户注册       | POST | `/api/auth`                 | 注册用户账号（普通或管理员）若注册管理员账号，需提供有效管理员id | `username``password`可选：`type：新账号类型``adminId` |                              |
-| 用户登录       | POST | `/api/auth/login`           | 用户登录并获取 Token                                         | `username``password`                                  | `token:令牌``type：账户类型` |
-| Token 刷新     | POST | `/api/auth/refresh`         | 刷新过期的 Token                                             | `oldToken`                                            | `token`                      |
-| 修改密码       | PUT  | `/api/auth/editPassword`    | 修改密码                                                     | `id：用户id``oldPassword``newPassword`                |                              |
-| 分页查询       | POST | `/api/auth/page`            | （管理员）分页查询用户                                       | `page``pageSize`                                      | (pageResult)                 |
-| 启用或禁用账号 | POST | `/api/auth/status/{status}` | （管理员）启用或禁用账号                                     | `id`                                                  |                              |
+| 用户注册       | POST | `/api/user`                 | 注册用户账号（普通或管理员）若注册管理员账号，需提供有效管理员id | `username``password`可选：`type：新账号类型``adminId` |                              |
+| 用户登录       | POST | `/api/user/login`           | 用户登录并获取 Token                                         | `username``password`                                  | `token:令牌``type：账户类型` |
+| Token 刷新     | POST | `/api/user/refresh`         | 刷新过期的 Token                                             | `oldToken`                                            | `token`                      |
+| 修改密码       | PUT  | `/api/user/editPassword`    | 修改密码                                                     | `id：用户id``oldPassword``newPassword`                |                              |
+| 分页查询       | POST | `/api/user/page`            | （管理员）分页查询用户                                       | `page``pageSize`                                      | (pageResult)                 |
+| 启用或禁用账号 | POST | `/api/user/status/{status}` | （管理员）启用或禁用账号                                     | `id`                                                  |                              |
 
 1. **userService**
 
@@ -48,17 +48,18 @@ getByID
 
 1. **deviceController**
 
-| 接口名称               | 方法 | 端点                     | 描述                                                         | 请求体                                         | 响应（data部分）                          |
-| ---------------------- | ---- | ------------------------ | ------------------------------------------------------------ | ---------------------------------------------- | ----------------------------------------- |
-| 新增设备               | POST | `/api/device`            | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型``userId`     |                                           |
-| 删除设备               | DEL  | `/api/device`            | 删除设备                                                     | `id:设备id`                                    |                                           |
-| 分页查询               | POST | `/api/device/page`       | 根据用户id分页查询设备可以输入设备名称以筛选                 | `userId``page``pageSize`可选：`name：设备名称` | (pageResult)                              |
-| 修改设备名称           | PUT  | /api/devices/{Id}/name   | 修改设备名称                                                 | `name`                                         |                                           |
-| 修改设备策略           | POST | /api/devices/{Id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                      |                                           |
-| 控制设备运行状态       | POST | /api/devices/{Id}/status | 控制设备运行状态                                             | `status`                                       |                                           |
-| 控制设备模式           | POST | /api/devices/{Id}/mode   | 控制设备运行模式                                             | `mode`                                         |                                           |
-| 控制设备               | POST | /api/devices/{Id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policy_id``status``mode` |                                           |
-| 根据设备id查询设备状态 | GET  | /api/devices             | 根据设备id查询设备状态，可一次查询多个设备                   | `idList`                                       | (list，包括运行状态、模式名、功率、策略） |
+| 接口名称         | 方法 | 端点                    | 描述                                                         | 请求体                                          | 响应（data部分） |
+| ---------------- | ---- | ----------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ---------------- |
+| 新增设备         | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型``userId`      |                  |
+| 删除设备         | DEL  | `/api/device`           | 删除设备                                                     | `id:设备id`                                     |                  |
+| 分页查询         | POST | `/api/device/page`      | 根据用户id分页查询设备可以输入设备名称以筛选                 | `page``pageSize`可选：`name：设备名称`          | (pageResult)     |
+| 修改设备名称     | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                  |
+| 修改设备策略     | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                  |
+| 控制设备运行状态 | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                  |
+| 控制设备模式     | POST | /api/device/{id}/mode   | 控制设备运行模式                                             | `modeId:该设备对应模式的id`                     |                  |
+| 控制设备         | POST | /api/device/{id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policyId``status``modeId` |                  |
+
+分页查询等不需要传入用户id，这部分通过jwt提取
 
 1. **deviceService**
 
@@ -78,6 +79,184 @@ getByID
 
 ## 
 
+## Policy类
+
+策略管理类
+
+1. **policyController**
+
+| 接口名称           | 方法 | 端点                            | 描述                       | 请求体           | 响应（data部分）     |
+| ------------------ | ---- | ------------------------------- | -------------------------- | ---------------- | -------------------- |
+| 新增策略           | POST | `/api/policy`                   | 新增策略（不包括策略条目） | `name``deviceID` |                      |
+| 删除策略           | DEL  | /api/policy/{id}                | 删除策略                   |                  |                      |
+| 根据设备id查询策略 | GET  | `/api/policy/device/{deviceId}` | 根据设备id查询策略         |                  | (list，包括每个策略) |
+| 修改策略名称       | PUT  | /api/policy/{id}/name           | 修改策略名称               | `name`           |                      |
+| 根据设备id删除策略 | DEL  | `/api/policy/device/{deviceId}` | 删除设备的所有策略         |                  |                      |
+
+1. **policyService**
+
+按每个接口开发即可（系统流程详见设备模拟建议）
+
+1. **policyMapper**
+
+insert
+
+pageQueny
+
+update
+
+getByID
+
+按需编写
+
+
+
+## **PolicyItem**类
+
+1. **policyItem****Controller**
+
+| 接口名称               | 方法 | 端点                                | 描述                   | 请求体                                 | 响应（data部分）         |
+| ---------------------- | ---- | ----------------------------------- | ---------------------- | -------------------------------------- | ------------------------ |
+| 新增策略条目           | POST | `/api/policyItem`                   | 新增策略条目           | `policyId``startTime``endTime``modeId` |                          |
+| 删除策略条目           | DEL  | /api/policyItem/{id}                | 删除策略               |                                        |                          |
+| 根据策略id查询策略条目 | GET  | `/api/policyItem/policy/{policyId}` | 根据策略id查询策略条目 |                                        | (list，包括每个策略条目) |
+| 修改条目内容           | PUT  | /api/policyItem/{id}                | 修改条目内容           | 可选:`startTime``endTime``modeId`      |                          |
+| 根据策略id删除策略条目 | DEL  | `/api/policyItem/policy/{policyId}` | 删除策略的所有策略条目 |                                        |                          |
+
+1. **policy****Item****Service**
+
+按接口开发
+
+1. **policyItem****Mapper**
+
+insert
+
+update
+
+getByPolicyID
+
+deleteById
+
+按需编写
+
+
+
+## Batch类
+
+批量操作类
+
+1. **batchController**
+
+| 接口名称         | 方法 | 端点                 | 描述                               | 请求体                                  | 响应（data部分） |
+| ---------------- | ---- | -------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
+| 新增批量操作     | POST | `/api/batch`         | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
+| 删除批量操作     | DEL  | /api/batch/{id}      | 删除批量操作                       |                                         |                  |
+| 分页查询         | POST | `/api/batch/page`    | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
+| 修改批量操作名称 | PUT  | /api/batch/{id}/name | 修改批量操作名称                   | `name`                                  |                  |
+
+新增批量操作、分页查询等不需要传入用户id，这部分通过jwt提取
+
+
+
+1. **batchService**
+
+按每个接口开发即可（系统流程详见设备模拟建议）
+
+1. **batchMapper**
+
+insert
+
+pageQueny
+
+update
+
+getByID
+
+按需编写
+
+
+
+## **BatchItem**类
+
+1. **batch****Item****Controller**
+
+| 接口名称               | 方法 | 端点                             | 描述                   | 请求体                                                       | 响应（data部分）             |
+| ---------------------- | ---- | -------------------------------- | ---------------------- | ------------------------------------------------------------ | ---------------------------- |
+| 新增批量操作条目       | POST | `/api/batchItem`                 | 新增批量操作条目       | `batchId``deviceId`可选：`isApplyPolicy``policyId``status``modeId` |                              |
+| 删除批量操作条目       | DEL  | /api/batchItem/{id}              | 删除批量操作条目       |                                                              |                              |
+| 根据批量操作id查询条目 | GET  | `/api/batchItem/batch/{batchId}` | 根据批量操作id查询条目 |                                                              | (list，包括每个批量操作条目) |
+| 修改条目内容           | PUT  | /api/batchItem/{id}              | 修改条目内容           | 可选:`deviceId``isApplyPolicy``policyId``status``modeId`     |                              |
+| 根据批量操作id删除条目 | DEL  | `/api/batchItem/batch/{batchId}` | 删除批量操作的所有条目 |                                                              |                              |
+
+1. **batch****Item****Service**
+
+按接口开发
+
+1. **batch****Item****Mapper**
+
+insert
+
+update
+
+getByPolicyID
+
+deleteById
+
+按需编写
+
+
+
+
+
+## DeviceData类
+
+设备数据管理模块，负责整理数据，并以报表的形式发送（以避免发送完整日志）
+
+1. **deviceMonitorController**
+
+| 接口名称               | 方法 | 端点                             | 描述                                       | 请求体   | 响应（data部分）                                      |
+| ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------- | ----------------------------------------------------- |
+| 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList` | (list，每项为一个设备的运行状态、模式名、功率、策略） |
+| 根据设备id查询设备报表 | GET  | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     |          | (list，每项为简化的日志）                             |
+| 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     |          | (list，每项为简化的日志）                             |
+| 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     |          | (list，每项为简化的日志）                             |
+
+1. **deviceMonitorService**
+
+查询设备当前状态：
+
+getDataByDeviceID(id)
+
+
+
+生成设备报表：
+
+提取日志的重要信息，以用于生成状态曲线、模式曲线、策略曲线、功率曲线、耗电量曲线
+
+同时提供计算后的总耗电量
+
+getDeviceReportByDeviceID(id，startTime， endTime)
+
+
+
+生成警报报表：
+
+从警报日志中提取
+
+getAlertReportByDeviceID(id，startTime， endTime)
+
+
+
+生成操作报表：
+
+从操作日志中提取
+
+getOperationReportByDeviceID(id，startTime， endTime)
+
+
+
+
+
 ------
 
 以下是仅包括Service层的类：
@@ -86,7 +265,9 @@ getByID
 
 设备监测类，使用定时任务 + 异步处理+线程池进行轮询，使用Redis进行缓存+状态变更检测+异步批量落盘减少数据库操作
 
-（系统流程详见设备模拟建议）
+简单来说即：跟踪策略、轮询设备、生成日志
+
+（流程详见设备模拟建议）
 
 
 
@@ -110,9 +291,31 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 
 
 
-## DeviceAPI类
+## Log类
 
-模拟设备api
+负责所有日志的生成与储存，支持异步批量储存
+
+1. **logService**
+
+saveDeviceLog(DeviceLogDTO)
+
+saveAlertLog(AlertLogDTO)
+
+saveOperationLog(OperationLogDTO)
+
+
+
+getDeviceLogByDeviceId(deviceId，startTime， endTime)
+
+getAlertLogByDeviceId(deviceId，startTime， endTime)
+
+getOperationLogByDeviceId(deviceId，startTime， endTime)
+
+
+
+## **DeviceAPI类**
+
+负责调用设备的api（这里为直接实现模拟api）
 
 1. **deviceApiService**
 
@@ -121,8 +324,6 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 控制api
 
 查询api
-
-
 
 
 
@@ -135,6 +336,30 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 1. **deviceM****ode****Mapper**
 
 getByNameAndDeviceID
+
+
+
+## DeviceLog类
+
+1. **deviceLogMapper**
+
+按需编写
+
+
+
+## AlertLog类
+
+1. **alertLogMapper**
+
+按需编写
+
+
+
+## OperationLog类
+
+1. **operationLogMapper**
+
+按需编写
 
 
 
@@ -154,8 +379,4 @@ getByDeviceID
 
 
 
-## **PolicyItem**类
-
-1. **policyItem****Mapper**
-
-getByPolicyID
+## 
