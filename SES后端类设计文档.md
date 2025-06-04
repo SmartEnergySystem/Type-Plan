@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月3日
+**更新时间**：2025年6月4日
 **作者**：Huangyijun
 
  
@@ -15,15 +15,15 @@
 
 1. **userController**
 
-| 接口名称           | 方法 | 端点                             | 描述                             | 请求体                     | 响应（data部分）             |
-| ------------------ | ---- | -------------------------------- | -------------------------------- | -------------------------- | ---------------------------- |
-| 用户注册           | POST | `/api/user`                      | 注册用户账号（只能注册普通账号） | `username``password`       |                              |
-| 用户登录           | POST | `/api/user/login`                | 用户登录并获取 Token             | `username``password`       | `token:令牌``type：账户类型` |
-| Token 刷新         | POST | `/api/user/refresh`              | 刷新过期的 Token                 | `oldToken`                 | `token`                      |
-| 修改密码           | PUT  | `/api/user/editPassword`         | 用户修改自己的密码               | `oldPassword``newPassword` |                              |
-| 根据账号id修改权限 | PUT  | `/api/user/{id}/type`            | （管理员）修改某个账号权限       | `type`                     |                              |
-| 分页查询           | POST | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`           | (pageResult)                 |
-| 启用或禁用账号     | POST | `/api/user/{id}/status/{status}` | （管理员）启用或禁用账号         |                            |                              |
+| 接口名称           | 方法 | 端点                             | 描述                             | 请求体                           | 响应（data部分）             |
+| ------------------ | ---- | -------------------------------- | -------------------------------- | -------------------------------- | ---------------------------- |
+| 用户注册           | POST | `/api/user`                      | 注册用户账号（只能注册普通账号） | `username``password`             |                              |
+| 用户登录           | POST | `/api/user/login`                | 用户登录并获取 Token             | `username``password`             | `token:令牌``type：账户类型` |
+| Token 刷新         | POST | `/api/user/refresh`              | 刷新过期的 Token                 | `oldToken`                       | `token`                      |
+| 修改密码           | PUT  | `/api/user/editPassword`         | 用户修改自己的密码               | `oldPassword``newPassword`       |                              |
+| 根据账号id修改权限 | PUT  | `/api/user/{id}/type`            | （管理员）修改某个账号权限       | `type`                           |                              |
+| 分页查询           | POST | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`可选：`username` | (pageResult)                 |
+| 启用或禁用账号     | POST | `/api/user/{id}/status/{status}` | （管理员）启用或禁用账号         |                                  |                              |
 
 1. **userService**
 
