@@ -22,7 +22,7 @@
 | Token 刷新         | POST | `/api/user/refresh`              | 刷新过期的 Token                 | `oldToken`                       | `token`                      |
 | 修改密码           | PUT  | `/api/user/editPassword`         | 用户修改自己的密码               | `oldPassword``newPassword`       |                              |
 | 根据账号id修改权限 | PUT  | `/api/user/{id}/type`            | （管理员）修改某个账号权限       | `type`                           |                              |
-| 分页查询           | POST | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`可选：`username` | (pageResult)                 |
+| 分页查询           | GET  | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`可选：`username` | (pageResult)                 |
 | 启用或禁用账号     | POST | `/api/user/{id}/status/{status}` | （管理员）启用或禁用账号         |                                  |                              |
 
 1. **userService**
@@ -53,7 +53,7 @@ getByID
 | ---------------- | ---- | ----------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ---------------- |
 | 新增设备         | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型``userId`      |                  |
 | 删除设备         | DEL  | `/api/device`           | 删除设备                                                     | `id:设备id`                                     |                  |
-| 分页查询         | POST | `/api/device/page`      | 根据用户id分页查询设备可以输入设备名称以筛选                 | `page``pageSize`可选：`name：设备名称`          | (pageResult)     |
+| 分页查询         | GET  | `/api/device/page`      | 根据用户id分页查询设备可以输入设备名称以筛选                 | `page``pageSize`可选：`name：设备名称`          | (pageResult)     |
 | 修改设备名称     | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                  |
 | 修改设备策略     | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                  |
 | 控制设备运行状态 | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                  |
@@ -152,7 +152,7 @@ deleteById
 | ---------------- | ---- | -------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
 | 新增批量操作     | POST | `/api/batch`         | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
 | 删除批量操作     | DEL  | /api/batch/{id}      | 删除批量操作                       |                                         |                  |
-| 分页查询         | POST | `/api/batch/page`    | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
+| 分页查询         | GET  | `/api/batch/page`    | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
 | 修改批量操作名称 | PUT  | /api/batch/{id}/name | 修改批量操作名称                   | `name`                                  |                  |
 
 新增批量操作、分页查询等不需要传入用户id，这部分通过jwt提取
