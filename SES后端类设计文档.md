@@ -225,7 +225,7 @@ deleteById
 
 设备数据管理模块，负责整理数据，并以报表的形式发送（以避免发送完整日志）
 
-1. **deviceMonitorController**
+1. **deviceDataController**
 
 | 接口名称               | 方法 | 端点                             | 描述                                       | 请求体   | 响应（data部分）                                      |
 | ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------- | ----------------------------------------------------- |
@@ -234,7 +234,7 @@ deleteById
 | 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     |          | (list，每项为简化的日志）                             |
 | 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     |          | (list，每项为简化的日志）                             |
 
-1. **deviceMonitorService**
+1. **deviceDataService**
 
 查询设备当前状态：
 
