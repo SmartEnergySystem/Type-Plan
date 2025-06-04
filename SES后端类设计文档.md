@@ -51,7 +51,7 @@ getByID
 
 | 接口名称         | 方法 | 端点                    | 描述                                                         | 请求体                                          | 响应（data部分） |
 | ---------------- | ---- | ----------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ---------------- |
-| 新增设备         | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型``userId`      |                  |
+| 新增设备         | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型`              |                  |
 | 删除设备         | DEL  | `/api/device`           | 删除设备                                                     | `id:设备id`                                     |                  |
 | 分页查询         | GET  | `/api/device/page`      | 根据用户id分页查询设备可以输入设备名称以筛选                 | `page``pageSize`可选：`name：设备名称`          | (pageResult)     |
 | 修改设备名称     | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                  |
@@ -60,11 +60,23 @@ getByID
 | 控制设备模式     | POST | /api/device/{id}/mode   | 控制设备运行模式                                             | `modeId:该设备对应模式的id`                     |                  |
 | 控制设备         | POST | /api/device/{id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policyId``status``modeId` |                  |
 
-分页查询等不需要传入用户id，这部分通过jwt提取
+新增设备、分页查询等不需要传入用户id，这部分通过jwt提取
 
 1. **deviceService**
 
 按每个接口开发即可（系统流程详见设备模拟建议）
+
+
+
+控制请求，要记录操作日志
+
+
+
+DTO参考：
+
+deviceDTO(name、type）
+
+deviceControlDTO（`isApplyPolicy`、`policyId`、`status`、`modeId`）
 
 1. **deviceMapper**
 
@@ -226,7 +238,9 @@ deleteById
 
 查询设备当前状态：
 
-getDataByDeviceID(id)
+返回deviceDataVO列表（deviceId，status，modeName，power，policy）
+
+getDataByDeviceID(idList)
 
 
 
@@ -292,6 +306,16 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 
 
 
+定时调用设备查询api，根据前[设备轮询间隔]作为startTime，当前时间作为Endtime，计算用电量。
+
+然后记录日志
+
+
+
+此外定期监控用电量，进行预警
+
+
+
 ## Log类
 
 负责所有日志的生成与储存，支持异步批量储存
@@ -306,11 +330,13 @@ saveOperationLog(OperationLogDTO)
 
 
 
-getDeviceLogByDeviceId(deviceId，startTime， endTime)
+LogQueryDTO(deviceId，startTime， endTime)
 
-getAlertLogByDeviceId(deviceId，startTime， endTime)
+queryDeviceLog(LogQueryDTO)
 
-getOperationLogByDeviceId(deviceId，startTime， endTime)
+queryAlertLog(LogQueryDTO)
+
+queryOperationLog(LogQueryDTO)
 
 
 
@@ -320,11 +346,33 @@ getOperationLogByDeviceId(deviceId，startTime， endTime)
 
 1. **deviceApiService**
 
-初始化api
+初始化api：
 
-控制api
+为deviceId的设备填写device_mode表和sim_device_mode表，填写默认模式
+
+deviceInitApi（deviceId，type）
+
+
+
+控制api：
+
+为deviceId设备发布控制指令（实际为修改sim_device表）
+
+deviceControlApiDTO（deviceId，status，modeId）
+
+deviceControlApi（deviceControlApiDTO）
+
+
 
 查询api
+
+查询deviceId设备的当前状态（实际为查询sim_device和sim_device_mode表）
+
+返回deviceDataVO（deviceId，status，modeName，power，policy=null）
+
+deviceQueryApi（deviceId）
+
+
 
 
 
