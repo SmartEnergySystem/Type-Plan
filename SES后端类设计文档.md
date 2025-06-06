@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月4日
+**更新时间**：2025年6月6日
 **作者**：Huangyijun
 
  
@@ -270,6 +270,10 @@ getOperationReportByDeviceID(id，startTime， endTime)
 
 
 
+注：耗电量计算忽略异常数值（例如大于3000W的功率）
+
+
+
 
 
 ------
@@ -348,9 +352,13 @@ queryOperationLog(LogQueryDTO)
 
 初始化api：
 
-为deviceId的设备填写device_mode表和sim_device_mode表，填写默认模式
+为deviceId的设备填写sim_device表和sim_device_mode表
+
+返回deviceInitApiResultDTO，包括该设备的默认模式名与模式名列表，用于填写device_mode
 
 deviceInitApi（deviceId，type）
+
+
 
 
 
@@ -358,9 +366,7 @@ deviceInitApi（deviceId，type）
 
 为deviceId设备发布控制指令（实际为修改sim_device表）
 
-deviceControlApiDTO（deviceId，status，modeId）
-
-deviceControlApi（deviceControlApiDTO）
+deviceControlApi（deviceId，status，modeId）
 
 
 
@@ -368,7 +374,7 @@ deviceControlApi（deviceControlApiDTO）
 
 查询deviceId设备的当前状态（实际为查询sim_device和sim_device_mode表）
 
-返回deviceDataVO（deviceId，status，modeName，power，policy=null）
+返回deviceQueryApiResultDTO（status，modeName，power）
 
 deviceQueryApi（deviceId）
 
