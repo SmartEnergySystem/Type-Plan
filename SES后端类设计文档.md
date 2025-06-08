@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月4日
+**更新时间**：2025年6月8日
 **作者**：Huangyijun
 
  
@@ -49,16 +49,17 @@ getByID
 
 1. **deviceController**
 
-| 接口名称         | 方法 | 端点                    | 描述                                                         | 请求体                                          | 响应（data部分） |
-| ---------------- | ---- | ----------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ---------------- |
-| 新增设备         | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型`              |                  |
-| 删除设备         | DEL  | `/api/device/{id}`      | 删除设备                                                     |                                                 |                  |
-| 分页查询         | GET  | `/api/device/page`      | 根据用户id分页查询设备可以输入设备名称以筛选                 | `page``pageSize`可选：`name：设备名称`          | (pageResult)     |
-| 修改设备名称     | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                  |
-| 修改设备策略     | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                  |
-| 控制设备运行状态 | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                  |
-| 控制设备模式     | POST | /api/device/{id}/mode   | 控制设备运行模式                                             | `modeId:该设备对应模式的id`                     |                  |
-| 控制设备         | POST | /api/device/{id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policyId``status``modeId` |                  |
+| 接口名称               | 方法 | 端点                    | 描述                                                         | 请求体                                          | 响应（data部分）           |
+| ---------------------- | ---- | ----------------------- | ------------------------------------------------------------ | ----------------------------------------------- | -------------------------- |
+| 新增设备               | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型`              |                            |
+| 删除设备               | DEL  | `/api/device/{id}`      | 删除设备                                                     |                                                 |                            |
+| 分页查询               | GET  | `/api/device/page`      | 根据用户id分页查询设备（不包括设备模式）可以输入设备名称以筛选 | `page``pageSize`可选：`name：设备名称`          | (pageResult)               |
+| 根据设备id查询模式信息 | GET  | `/api/device/{id}/mode` | 根据设备id查询模式信息                                       |                                                 | (list，包括各模式id与名称) |
+| 修改设备名称           | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                            |
+| 修改设备策略           | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                            |
+| 控制设备运行状态       | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                            |
+| 控制设备模式           | POST | /api/device/{id}/mode   | 控制设备运行模式                                             | `modeId:该设备对应模式的id`                     |                            |
+| 控制设备               | POST | /api/device/{id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policyId``status``modeId` |                            |
 
 新增设备、分页查询等不需要传入用户id，这部分通过jwt提取
 
@@ -160,12 +161,13 @@ deleteById
 
 1. **batchController**
 
-| 接口名称         | 方法 | 端点                 | 描述                               | 请求体                                  | 响应（data部分） |
-| ---------------- | ---- | -------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
-| 新增批量操作     | POST | `/api/batch`         | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
-| 删除批量操作     | DEL  | /api/batch/{id}      | 删除批量操作                       |                                         |                  |
-| 分页查询         | GET  | `/api/batch/page`    | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
-| 修改批量操作名称 | PUT  | /api/batch/{id}/name | 修改批量操作名称                   | `name`                                  |                  |
+| 接口名称         | 方法 | 端点                  | 描述                               | 请求体                                  | 响应（data部分） |
+| ---------------- | ---- | --------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
+| 新增批量操作     | POST | `/api/batch`          | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
+| 删除批量操作     | DEL  | /api/batch/{id}       | 删除批量操作                       |                                         |                  |
+| 分页查询         | GET  | `/api/batch/page`     | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
+| 修改批量操作名称 | PUT  | /api/batch/{id}/name  | 修改批量操作名称                   | `name`                                  |                  |
+| 应用批量操作     | POST | /api/batch/{id}/apply | 应用批量操作                       |                                         |                  |
 
 新增批量操作、分页查询等不需要传入用户id，这部分通过jwt提取
 
