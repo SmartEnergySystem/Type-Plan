@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月8日
+**更新时间**：2025年6月9日
 **作者**：Huangyijun
 
  
@@ -20,6 +20,7 @@
 | 用户注册           | POST | `/api/user`                      | 注册用户账号（只能注册普通账号） | `username``password`             |                              |
 | 用户登录           | POST | `/api/user/login`                | 用户登录并获取 Token             | `username``password`             | `token:令牌``type：账户类型` |
 | Token 刷新         | POST | `/api/user/refresh`              | 刷新过期的 Token                 | `oldToken`                       | `token`                      |
+| 修改用户名         | PUT  | `/api/user/editUsername`         | 用户修改自己的用户名             | `newUsername`                    |                              |
 | 修改密码           | PUT  | `/api/user/editPassword`         | 用户修改自己的密码               | `oldPassword``newPassword`       |                              |
 | 根据账号id修改权限 | PUT  | `/api/user/{id}/type`            | （管理员）修改某个账号权限       | `type`                           |                              |
 | 分页查询           | GET  | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`可选：`username` | (pageResult)                 |
@@ -240,9 +241,29 @@ deleteById
 
 查询设备当前状态：
 
-返回deviceDataVO列表（deviceId，status，modeName，power，policy）
+返回DeviceDataVO列表
 
 getDataByDeviceID(idList)
+
+查询redis缓存，如果redis中没有，就说明没有实时数据
+
+没有实时数据时，从设备日志表查询最新的日志，作为设备最后已知状态
+
+
+
+DeviceDataVO：
+
+（deviceId，status，modeName，power，policyName，isRealTime，lastUpdatedTime）
+
+如果是实时数据，则isRealTime=1
+
+如果不是实时数据，则isRealTime=0，然后提供lastUpdatedTime
+
+
+
+
+
+
 
 
 
@@ -312,7 +333,15 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 
 
 
-定时调用设备查询api，根据前[设备轮询间隔]作为startTime，当前时间作为Endtime，计算用电量。
+定时调用设备查询api，得到DeviceQueryApiResultDTO（status，modeName，power）存入redis。
+
+redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeName，power）
+
+其中status，modeName，power在每次轮询时修改。
+
+
+
+根据前[设备轮询间隔]作为startTime，当前时间作为endtime，计算用电量。
 
 然后记录日志
 
@@ -322,19 +351,111 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 
 
 
+关于redis储存设备数据：
+
+在redis中，一个设备只能有一条信息（同key自动覆盖），储存时间戳，60秒后删除。
+
+查询时判断时间戳，距今小于10秒则为实时数据
+
+## DeviceMonitor类
+
+设备监测类，使用定时任务 + 异步处理+线程池进行轮询，使用Redis进行缓存+状态变更检测+异步批量落盘减少数据库操作
+
+（流程详见设备模拟建议）
+
+
+
+1. **deviceMonitorService**
+
+定时调用设备查询api，得到DeviceQueryApiResultDTO（status，modeName，power）存入redis。
+
+redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeName，power，lastUpdatedTime）
+
+其中status，modeName，power在每次轮询时修改。
+
+
+
+根据前[设备轮询间隔]作为startTime，当前时间作为endtime，计算用电量。
+
+然后记录日志
+
+
+
+此外定期监控用电量，进行预警
+
+
+
+关于redis储存设备数据：
+
+在redis中，一个设备只能有一条信息（同key自动覆盖），储存时间戳，60秒后删除。
+
+查询时判断时间戳，距今小于10秒则为实时数据
+
+
+
+## PolicyMonitor类
+
+负责跟踪设备策略，根据策略调用设备的控制api
+
+1. **policyMonitorService**
+
+
+
+
+
 ## Log类
 
 负责所有日志的生成与储存，支持异步批量储存
 
 1. **logService**
 
-saveDeviceLog(DeviceLogDTO)
+saveDeviceLog(DeviceLogSaveDTO)
 
-saveAlertLog(AlertLogDTO)
+区分传入字段与不常变字段
 
-saveOperationLog(OperationLogDTO)
+传入字段：
+
+SaveDeviceLogDTO（device_id，startTime，endtime,，status，modeName，power）
+
+（用电量由logService计算）
 
 
+
+不常变字段：使用本地缓存
+
+对每个设备id有：
+
+LogCommonDTO
+
+（user_id，user_username，device_name，policy_name，policy）
+
+这个缓存同时被3种日志使用
+
+
+
+自动更新缓存：5分钟
+
+LOG_COMMON_REFRESH_INTERVAL = 5 * 60 * 1000;
+
+
+
+强制更新缓存：使用消息队列
+
+当修改username、device_name，修改策略（及其条目）、给设备挂载策略时，
+
+强制更新对应字段的缓存
+
+
+
+
+
+saveAlertLog(AlertLogSaveDTO)
+
+saveOperationLog(OperationLogSaveDTO)
+
+
+
+以下暂不实现（前端不应直接请求日志）
 
 LogQueryDTO(deviceId，startTime， endTime)
 
@@ -343,6 +464,12 @@ queryDeviceLog(LogQueryDTO)
 queryAlertLog(LogQueryDTO)
 
 queryOperationLog(LogQueryDTO)
+
+
+
+未来升级考虑：
+
+日志先缓存，再定时批量落盘
 
 
 
@@ -379,6 +506,38 @@ deviceControlApi（deviceId，status，modeId）
 返回deviceQueryApiResultDTO（status，modeName，power）
 
 deviceQueryApi（deviceId）
+
+
+
+## DeviceIdCache**类**
+
+辅助类，用于管理全设备id的缓存。
+
+使用Caffeine进行本地缓存
+
+自动刷新，或监听RabbitMQ消息队列以强制刷新
+
+1. **deviceIdCacheService**
+
+getAllDeviceId（）
+
+
+
+## LogCommonCache类
+
+辅助类，用于管理日志常用字段的缓存。
+
+使用Caffeine进行本地缓存
+
+自动刷新，或监听RabbitMQ消息队列以强制刷新
+
+强制刷新包括用户名、设备名、策略3种，其中用户名、设备名可以直接修改缓存，不用查表
+
+对于新建设备的情况，则查表以新建整个缓存项
+
+1. **logCommonCacheService**
+
+getAllDeviceId（）
 
 
 
