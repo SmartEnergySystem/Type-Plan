@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月10日
+**更新时间**：2025年6月11日
 **作者**：Huangyijun
 
  
@@ -230,12 +230,12 @@ deleteById
 
 1. **deviceDataController**
 
-| 接口名称               | 方法 | 端点                             | 描述                                       | 请求体   | 响应（data部分）                                      |
-| ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------- | ----------------------------------------------------- |
-| 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList` | (list，每项为一个设备的运行状态、模式名、功率、策略） |
-| 根据设备id查询设备报表 | GET  | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     |          | (list，每项为简化的日志）                             |
-| 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     |          | (list，每项为简化的日志）                             |
-| 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     |          | (list，每项为简化的日志）                             |
+| 接口名称               | 方法 | 端点                             | 描述                                       | 请求体               | 响应（data部分）                                      |
+| ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------------------- | ----------------------------------------------------- |
+| 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList`             | (list，每项为一个设备的运行状态、模式名、功率、策略） |
+| 根据设备id查询设备报表 | GET  | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+| 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+| 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
 
 1. **deviceDataService**
 
@@ -263,10 +263,6 @@ DeviceDataVO：
 
 
 
-
-
-
-
 生成设备报表：
 
 提取日志的重要信息，以用于生成状态曲线、模式曲线、策略曲线、功率曲线、耗电量曲线
@@ -274,6 +270,8 @@ DeviceDataVO：
 同时提供计算后的总耗电量
 
 getDeviceReportByDeviceID(id，startTime， endTime)
+
+
 
 
 
@@ -401,10 +399,6 @@ redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeNam
 
 
 
-## 
-
-
-
 ## Log类
 
 负责所有日志的生成与储存，支持异步批量储存
@@ -471,7 +465,9 @@ queryOperationLog(LogQueryDTO)
 
 未来升级考虑：
 
-日志先缓存，再定时批量落盘
+1.接收消息队列而不是被直接调用
+
+2.日志先缓存，再定时批量落盘
 
 
 
@@ -576,6 +572,18 @@ getAllDeviceId（）
 getAllDeviceId（）
 
 
+
+## AbstractCacheService类
+
+抽象类，为所有缓存类提供了初始化以及三个级别的get接口
+
+分别为：
+
+1.直接从缓存获取
+
+2.缓存没有则尝试刷新（一定次数）
+
+3.尝试刷新，失败提供兜底数据
 
 
 
