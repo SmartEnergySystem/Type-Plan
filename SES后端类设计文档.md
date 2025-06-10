@@ -233,9 +233,11 @@ deleteById
 | 接口名称               | 方法 | 端点                             | 描述                                       | 请求体               | 响应（data部分）                                      |
 | ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------------------- | ----------------------------------------------------- |
 | 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList`             | (list，每项为一个设备的运行状态、模式名、功率、策略） |
-| 根据设备id查询设备报表 | GET  | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
-| 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
-| 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+| 根据设备id查询设备报表 | POST | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+| 根据设备id查询警报报表 | POST | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+| 根据设备id查询操作报表 | POST | /api/device/{id}/operationReport | 根据设备id查询操作报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
+
+注：请求体中时间格式请用"2025-06-11 00:36:18"
 
 1. **deviceDataService**
 
