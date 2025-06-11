@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月11日
+**更新时间**：2025年6月12日
 **作者**：Huangyijun
 
  
@@ -55,7 +55,7 @@ getByID
 | 新增设备               | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型`              |                            |
 | 删除设备               | DEL  | `/api/device/{id}`      | 删除设备                                                     |                                                 |                            |
 | 分页查询               | GET  | `/api/device/page`      | 根据用户id分页查询设备（不包括设备模式）可以输入设备名称以筛选 | `page``pageSize`可选：`name：设备名称`          | (pageResult)               |
-| 根据设备id查询模式信息 | GET  | `/api/device/{id}/mode` | 根据设备id查询模式信息                                       |                                                 | (list，包括各模式id与名称) |
+| 根据设备id查询模式信息 | GET  | `/api/device/{id}/mode` | 根据设备id查询设备的所有模式信息                             |                                                 | (list，包括各模式id与名称) |
 | 修改设备名称           | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                            |
 | 修改设备策略           | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                            |
 | 控制设备运行状态       | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                            |
@@ -429,19 +429,45 @@ redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeNam
 
 为每个设备设置一个“时间队列”缓存，记录其策略中所有时间点
 
-为设备再维护一个“任务线程”缓存，当一个任务完成时，计算到下一个任务的延迟，然后发布下一个任务的延迟启动线程，挂载到缓存中
+为设备再维护一个“任务线程”的线程池，使用工厂模式发布延时任务
 
-任务上限1，新任务会替换旧任务
+当一个任务完成时，自动计算并刷新下一个任务
 
 
 
-此外任务具有自动或强制刷新，每30分钟自动重新计算所有设备的任务。当策略的应用情况，或策略内容改变时，使用消息队列通知相应设备刷新。
+此外任务具有自动或强制刷新，每30分钟自动重新计算所有设备的任务。当策略的应用情况或策略内容改变时，使用消息队列通知相应设备刷新。
 
 
 
 
 
 1. **policyMonitorService**
+
+重新计算并发布单个设备的延时任务：
+
+如有旧任务，先清除旧任务
+
+refreshTaskByDeviceId（deviceId）
+
+
+
+监听来自“策略的应用情况或策略内容改变”的rabbitMQ消息（内容为deviceId）：
+
+调用PolicyTimePointCache的刷新并同步等待
+
+为该设备重新计算并发布任务
+
+onRefreshTaskByDeviceId（）
+
+
+
+任务的具体逻辑：
+
+查询该时间点对应的策略条目，得到任务内容（状态与模式名）
+
+根据任务内容调用设备控制api
+
+
 
 
 
@@ -543,11 +569,11 @@ deviceInitApi（deviceId，type）
 
 为deviceId设备发布控制指令（实际为修改sim_device表）
 
-deviceControlApi（deviceId，status，modeId）
+deviceControlApi（deviceId，status，modeName）
 
 
 
-查询api
+查询api：
 
 查询deviceId设备的当前状态（实际为查询sim_device和sim_device_mode表）
 
@@ -601,7 +627,7 @@ deviceQueryApi（deviceId）
 
 1. **deviceIdCacheService**
 
-getAllDeviceId（）
+get（）
 
 
 
@@ -619,7 +645,19 @@ getAllDeviceId（）
 
 1. **logCommonCacheService**
 
-getAllDeviceId（）
+get（deviceId）
+
+
+
+## PolicyTimePointCache类
+
+负责管理各设备所应用策略的时间点列表。
+
+各项同上
+
+1. **policyTimePointService**
+
+get（deviceId）
 
 
 
@@ -634,6 +672,14 @@ getAllDeviceId（）
 2.缓存没有则尝试刷新（一定次数）
 
 3.尝试刷新，失败提供兜底数据
+
+
+
+## PolicyTaskFactoryService类
+
+工厂类，用于生成策略任务的运行实例
+
+
 
 
 
