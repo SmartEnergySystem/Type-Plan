@@ -138,6 +138,8 @@ getByID
 | 修改条目内容           | PUT  | /api/policyItem/{id}                | 修改条目内容           | 可选:`startTime``endTime``modeId`      |                          |
 | 根据策略id删除策略条目 | DEL  | `/api/policyItem/policy/{policyId}` | 删除策略的所有策略条目 |                                        |                          |
 
+注：策略条目的时间格式请用"00:36:18"（仅时分秒）
+
 1. **policy****Item****Service**
 
 按接口开发
@@ -153,6 +155,22 @@ getByPolicyID
 deleteById
 
 按需编写
+
+
+
+修正：我们现在的策略实际上是“日策略”，即其中时间点不超过24h，策略按日循环执行
+
+
+
+理论上，还可以有周策略，即星期几应用什么日策略，按周循环执行
+
+然后，可以给设备应用日策略或者周策略，策略监测模块自动判断并执行
+
+或者从预订的角度考虑，也可能有“定时到x月x日”的需求
+
+再者，有时设置策略未必是需要强制设备开关机，而只是设置“运行时策略”，即在这个时间段，我如果需要开启这台设备的话，它使用什么模式运行。
+
+考虑到工期与先期设计的不足，以上更详细的策略设计暂时无法实现
 
 
 
@@ -237,7 +255,7 @@ deleteById
 | 根据设备id查询警报报表 | POST | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
 | 根据设备id查询操作报表 | POST | /api/device/{id}/operationReport | 根据设备id查询操作报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
 
-注：请求体中时间格式请用"2025-06-11 00:36:18"
+注：查询报表的时间格式请用"2025-06-11 00:36:18"
 
 1. **deviceDataService**
 
@@ -269,7 +287,7 @@ DeviceDataVO：
 
 提取日志的重要信息，以用于生成状态曲线、模式曲线、策略曲线、功率曲线、耗电量曲线
 
-同时提供计算后的总耗电量
+同时提供计算后的总耗电量（忽略异常数值）
 
 getDeviceReportByDeviceID(id，startTime， endTime)
 
@@ -282,6 +300,18 @@ getDeviceReportByDeviceID(id，startTime， endTime)
 从警报日志中提取
 
 getAlertReportByDeviceID(id，startTime， endTime)
+
+
+
+关于警报日志：
+
+当设备发生故障，只会记录第一次警报，后续不会持续记录
+
+直到设备恢复，再记录level=“恢复正常”的警报日志
+
+
+
+
 
 
 
@@ -397,6 +427,20 @@ redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeNam
 
 负责跟踪设备策略，根据策略调用设备的控制api
 
+为每个设备设置一个“时间队列”缓存，记录其策略中所有时间点
+
+为设备再维护一个“任务线程”缓存，当一个任务完成时，计算到下一个任务的延迟，然后发布下一个任务的延迟启动线程，挂载到缓存中
+
+任务上限1，新任务会替换旧任务
+
+
+
+此外任务具有自动或强制刷新，每30分钟自动重新计算所有设备的任务。当策略的应用情况，或策略内容改变时，使用消息队列通知相应设备刷新。
+
+
+
+
+
 1. **policyMonitorService**
 
 
@@ -448,6 +492,10 @@ LOG_COMMON_REFRESH_INTERVAL = 5 * 60 * 1000;
 
 
 saveAlertLog(AlertLogSaveDTO)
+
+
+
+操作日志暂不实现
 
 saveOperationLog(OperationLogSaveDTO)
 
