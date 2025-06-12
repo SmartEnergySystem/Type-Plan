@@ -1,0 +1,2967 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "智能家居能源管理系统接口文档",
+    "version": "2.0",
+    "title": "智能家居能源管理系统项目接口文档"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "批量操作接口",
+      "description": "Batch Controller"
+    },
+    {
+      "name": "批量操作条目相关接口",
+      "description": "Batch Item Controller"
+    },
+    {
+      "name": "用户相关接口",
+      "description": "User Controller"
+    },
+    {
+      "name": "策略条目相关接口",
+      "description": "Policy Item Controller"
+    },
+    {
+      "name": "策略相关接口",
+      "description": "Policy Controller"
+    },
+    {
+      "name": "设备数据管理相关接口",
+      "description": "Device Data Controller"
+    },
+    {
+      "name": "设备相关接口",
+      "description": "Device Controller"
+    }
+  ],
+  "paths": {
+    "/api/batch": {
+      "post": {
+        "tags": [
+          "批量操作接口"
+        ],
+        "summary": "新增批量操作",
+        "operationId": "addBatchUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "batchAddDTO",
+            "description": "batchAddDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchAddDTO",
+              "originalRef": "BatchAddDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/batch/page": {
+      "get": {
+        "tags": [
+          "批量操作接口"
+        ],
+        "summary": "分页查询批量操作",
+        "operationId": "pageQueryUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "批量操作名称(模糊查询)",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 10
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«PageResult»",
+              "originalRef": "Result«PageResult»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/batch/{id}": {
+      "delete": {
+        "tags": [
+          "批量操作接口"
+        ],
+        "summary": "删除批量操作",
+        "operationId": "deleteBatchUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/batch/{id}/apply": {
+      "post": {
+        "tags": [
+          "批量操作接口"
+        ],
+        "summary": "应用批量操作",
+        "operationId": "applyBatchUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/batch/{id}/name": {
+      "put": {
+        "tags": [
+          "批量操作接口"
+        ],
+        "summary": "修改批量操作名称",
+        "operationId": "editBatchNameUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "nameEditDTO",
+            "description": "nameEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchNameEditDTO",
+              "originalRef": "BatchNameEditDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/batchItem": {
+      "post": {
+        "tags": [
+          "批量操作条目相关接口"
+        ],
+        "summary": "新增批量操作条目",
+        "operationId": "addBatchItemUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "batchItemDTO",
+            "description": "batchItemDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchItemDTO",
+              "originalRef": "BatchItemDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/batchItem/batch/{batchId}": {
+      "get": {
+        "tags": [
+          "批量操作条目相关接口"
+        ],
+        "summary": "根据批量操作id查询批量操作条目",
+        "operationId": "getBatchItemsByBatchIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "batchId",
+            "in": "path",
+            "description": "batchId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«BatchItem»»",
+              "originalRef": "Result«List«BatchItem»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "批量操作条目相关接口"
+        ],
+        "summary": "根据批量操作id删除批量操作条目",
+        "operationId": "deleteBatchItemsByBatchIdUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "batchId",
+            "in": "path",
+            "description": "batchId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/batchItem/{id}": {
+      "put": {
+        "tags": [
+          "批量操作条目相关接口"
+        ],
+        "summary": "修改批量操作条目内容",
+        "operationId": "editBatchItemUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "batchItemEditDTO",
+            "description": "batchItemEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchItemEditDTO",
+              "originalRef": "BatchItemEditDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "批量操作条目相关接口"
+        ],
+        "summary": "删除批量操作条目",
+        "operationId": "deleteBatchItemUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/device": {
+      "post": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "新增设备",
+        "operationId": "addDeviceUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceDTO",
+            "description": "deviceDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceDTO",
+              "originalRef": "DeviceDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/data": {
+      "get": {
+        "tags": [
+          "设备数据管理相关接口"
+        ],
+        "summary": "获取设备当前状态",
+        "operationId": "getDataByDeviceIdListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "要查询的设备id列表",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«DeviceDataVO»»",
+              "originalRef": "Result«List«DeviceDataVO»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/page": {
+      "get": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "分页查询设备",
+        "operationId": "pageQueryUsingGET_1",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "设备名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页记录数",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "用户ID（内部使用）",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«PageResult»",
+              "originalRef": "Result«PageResult»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}": {
+      "post": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "综合控制设备",
+        "operationId": "editDeviceUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceControlDTO",
+            "description": "deviceControlDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceControlDTO",
+              "originalRef": "DeviceControlDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "删除设备",
+        "operationId": "deleteDeviceUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/alertReport": {
+      "post": {
+        "tags": [
+          "设备数据管理相关接口"
+        ],
+        "summary": "根据设备id查询警报报表",
+        "operationId": "getAlertReportByDeviceIdUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "reportQueryDTO",
+            "description": "reportQueryDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReportQueryDTO",
+              "originalRef": "ReportQueryDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«AlertReportResultDTO»",
+              "originalRef": "Result«AlertReportResultDTO»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/deviceReport": {
+      "post": {
+        "tags": [
+          "设备数据管理相关接口"
+        ],
+        "summary": "根据设备id查询设备报表",
+        "operationId": "getDeviceReportByDeviceIdUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "reportQueryDTO",
+            "description": "reportQueryDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReportQueryDTO",
+              "originalRef": "ReportQueryDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«DeviceReportResultDTO»",
+              "originalRef": "Result«DeviceReportResultDTO»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/mode": {
+      "get": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "根据id查询设备模式",
+        "operationId": "getModeByDeviceIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«DeviceModeVO»»",
+              "originalRef": "Result«List«DeviceModeVO»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "控制设备模式",
+        "operationId": "editDeviceModeUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceModeEditDTO",
+            "description": "deviceModeEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceModeEditDTO",
+              "originalRef": "DeviceModeEditDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/name": {
+      "put": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "修改设备名称",
+        "operationId": "editDeviceNameUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceNameEditDTO",
+            "description": "deviceNameEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceNameEditDTO",
+              "originalRef": "DeviceNameEditDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/policy": {
+      "post": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "修改设备策略",
+        "operationId": "editDevicePolicyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "devicePolicyEditDTO",
+            "description": "devicePolicyEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DevicePolicyEditDTO",
+              "originalRef": "DevicePolicyEditDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/device/{id}/status": {
+      "post": {
+        "tags": [
+          "设备相关接口"
+        ],
+        "summary": "控制设备运行状态",
+        "operationId": "editDeviceStatusUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceStatusEditDTO",
+            "description": "deviceStatusEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeviceStatusEditDTO",
+              "originalRef": "DeviceStatusEditDTO"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/policy": {
+      "post": {
+        "tags": [
+          "策略相关接口"
+        ],
+        "summary": "新增策略",
+        "operationId": "addPolicyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "policyDTO",
+            "description": "policyDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PolicyDTO",
+              "originalRef": "PolicyDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/policy/device/{deviceId}": {
+      "get": {
+        "tags": [
+          "策略相关接口"
+        ],
+        "summary": "根据设备id查询策略",
+        "operationId": "getPoliciesByDeviceIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "deviceId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«PolicyVO»»",
+              "originalRef": "Result«List«PolicyVO»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "策略相关接口"
+        ],
+        "summary": "根据设备id删除策略",
+        "operationId": "deletePoliciesByDeviceIdUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "deviceId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/policy/{id}": {
+      "delete": {
+        "tags": [
+          "策略相关接口"
+        ],
+        "summary": "删除策略",
+        "operationId": "deletePolicyUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/policy/{id}/name": {
+      "put": {
+        "tags": [
+          "策略相关接口"
+        ],
+        "summary": "修改策略名称",
+        "operationId": "editPolicyNameUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "policyNameEditDTO",
+            "description": "policyNameEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PolicyNameEditDTO",
+              "originalRef": "PolicyNameEditDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/policyItem": {
+      "post": {
+        "tags": [
+          "策略条目相关接口"
+        ],
+        "summary": "新增策略条目",
+        "operationId": "addPolicyItemUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "policyItemDTO",
+            "description": "policyItemDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PolicyItemDTO",
+              "originalRef": "PolicyItemDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/policyItem/policy/{policyId}": {
+      "get": {
+        "tags": [
+          "策略条目相关接口"
+        ],
+        "summary": "根据策略id查询策略条目",
+        "operationId": "getPolicyItemsByPolicyIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "path",
+            "description": "policyId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«PolicyItem»»",
+              "originalRef": "Result«List«PolicyItem»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "策略条目相关接口"
+        ],
+        "summary": "根据策略id删除策略条目",
+        "operationId": "deletePolicyItemsByPolicyIdUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "path",
+            "description": "policyId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/policyItem/{id}": {
+      "put": {
+        "tags": [
+          "策略条目相关接口"
+        ],
+        "summary": "修改策略条目内容",
+        "operationId": "editPolicyItemUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "policyItemEditDTO",
+            "description": "policyItemEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PolicyItemEditDTO",
+              "originalRef": "PolicyItemEditDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "策略条目相关接口"
+        ],
+        "summary": "删除策略条目",
+        "operationId": "deletePolicyItemUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/user": {
+      "post": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "新用户注册",
+        "operationId": "registerUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userDTO",
+            "description": "userDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserDTO",
+              "originalRef": "UserDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/editPassword": {
+      "put": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "修改密码",
+        "operationId": "editPasswordUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "passwordEditDTO",
+            "description": "passwordEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PasswordEditDTO",
+              "originalRef": "PasswordEditDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/editUsername": {
+      "put": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "修改用户名",
+        "operationId": "editUsernameUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "usernameEditDTO",
+            "description": "usernameEditDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsernameEditDTO",
+              "originalRef": "UsernameEditDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "用户登录",
+        "operationId": "loginUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userLoginDTO",
+            "description": "userLoginDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLoginDTO",
+              "originalRef": "UserLoginDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«UserLoginVO»",
+              "originalRef": "Result«UserLoginVO»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/logout": {
+      "post": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "用户登出",
+        "operationId": "logoutUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/page": {
+      "get": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "用户分页查询",
+        "operationId": "pageUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "username",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«PageResult»",
+              "originalRef": "Result«PageResult»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/refresh": {
+      "post": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "刷新 Token",
+        "operationId": "refreshUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "oldToken",
+            "in": "query",
+            "description": "oldToken",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/{id}/status/{status}": {
+      "post": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "启用禁用账号",
+        "operationId": "startOrStopUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "path",
+            "description": "status",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/user/{id}/type": {
+      "put": {
+        "tags": [
+          "用户相关接口"
+        ],
+        "summary": "修改权限",
+        "operationId": "editTypeUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "userEditTypeDTO",
+            "description": "userEditTypeDTO",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserEditTypeDTO",
+              "originalRef": "UserEditTypeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«string»",
+              "originalRef": "Result«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AlertReportResultDTO": {
+      "type": "object",
+      "properties": {
+        "alertReports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AlertReportVO",
+            "originalRef": "AlertReportVO"
+          },
+          "refType": "AlertReportVO"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        }
+      },
+      "title": "AlertReportResultDTO"
+    },
+    "AlertReportVO": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "message": {
+          "type": "string",
+          "refType": null
+        },
+        "modeName": {
+          "type": "string",
+          "refType": null
+        },
+        "policyName": {
+          "type": "string",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "refType": null
+        }
+      },
+      "title": "AlertReportVO"
+    },
+    "BatchAddDTO": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "批量操作名称",
+          "refType": null
+        }
+      },
+      "title": "BatchAddDTO",
+      "description": "新增批量操作时传递的数据模型"
+    },
+    "BatchItem": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "isApplyPolicy": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        }
+      },
+      "title": "BatchItem"
+    },
+    "BatchItemDTO": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "批量操作ID",
+          "refType": null
+        },
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "设备ID",
+          "refType": null
+        },
+        "isApplyPolicy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否应用策略（0=解绑策略, 1=应用policyId, NULL=不修改）",
+          "refType": null
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "模式ID",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID（可为空）",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态",
+          "refType": null
+        }
+      },
+      "title": "BatchItemDTO",
+      "description": "新增批量操作条目时传递的数据模型"
+    },
+    "BatchItemEditDTO": {
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "设备ID",
+          "refType": null
+        },
+        "isApplyPolicy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否应用策略（0=解绑策略, 1=应用policyId, NULL=不修改）",
+          "refType": null
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "模式ID",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID（可为空）",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态",
+          "refType": null
+        }
+      },
+      "title": "BatchItemEditDTO",
+      "description": "修改批量操作条目时传递的数据模型"
+    },
+    "BatchNameEditDTO": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "新的批量操作名称",
+          "refType": null
+        }
+      },
+      "title": "BatchNameEditDTO",
+      "description": "修改批量操作名称时传递的数据模型"
+    },
+    "DeviceControlDTO": {
+      "type": "object",
+      "properties": {
+        "isApplyPolicy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否应用策略：0=解绑策略，1=应用策略，null=不操作",
+          "refType": null
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "该设备对应模式的ID",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设备运行状态",
+          "refType": null
+        }
+      },
+      "title": "DeviceControlDTO",
+      "description": "设备控制时传递的数据模型"
+    },
+    "DeviceDTO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "设备名称",
+          "refType": null
+        },
+        "type": {
+          "type": "string",
+          "description": "内置设备类型",
+          "refType": null
+        }
+      },
+      "title": "DeviceDTO",
+      "description": "新增设备时传递的数据模型"
+    },
+    "DeviceDataVO": {
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "isRealTime": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "lastUpdatedTime": {
+          "type": "string",
+          "format": "date-time",
+          "refType": null
+        },
+        "modeName": {
+          "type": "string",
+          "refType": null
+        },
+        "policyName": {
+          "type": "string",
+          "refType": null
+        },
+        "power": {
+          "type": "number",
+          "format": "float",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        }
+      },
+      "title": "DeviceDataVO"
+    },
+    "DeviceModeEditDTO": {
+      "type": "object",
+      "properties": {
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "该设备对应模式的ID",
+          "refType": null
+        }
+      },
+      "title": "DeviceModeEditDTO",
+      "description": "控制设备模式时传递的数据模型"
+    },
+    "DeviceModeVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "name": {
+          "type": "string",
+          "refType": null
+        }
+      },
+      "title": "DeviceModeVO",
+      "description": "设备当前状态信息"
+    },
+    "DeviceNameEditDTO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "设备名称",
+          "refType": null
+        }
+      },
+      "title": "DeviceNameEditDTO",
+      "description": "修改设备名称时传递的数据模型"
+    },
+    "DevicePolicyEditDTO": {
+      "type": "object",
+      "properties": {
+        "isApplyPolicy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "是否应用策略：0=解绑策略，1=应用策略",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID",
+          "refType": null
+        }
+      },
+      "title": "DevicePolicyEditDTO",
+      "description": "修改设备策略时传递的数据模型"
+    },
+    "DeviceReportResultDTO": {
+      "type": "object",
+      "properties": {
+        "deviceReports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeviceReportVO",
+            "originalRef": "DeviceReportVO"
+          },
+          "refType": "DeviceReportVO"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "totalEnergyConsumption": {
+          "type": "number",
+          "format": "float",
+          "refType": null
+        }
+      },
+      "title": "DeviceReportResultDTO"
+    },
+    "DeviceReportVO": {
+      "type": "object",
+      "properties": {
+        "energyConsumption": {
+          "type": "number",
+          "format": "float",
+          "refType": null
+        },
+        "modeName": {
+          "type": "string",
+          "refType": null
+        },
+        "policyName": {
+          "type": "string",
+          "refType": null
+        },
+        "power": {
+          "type": "number",
+          "format": "float",
+          "refType": null
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "refType": null
+        }
+      },
+      "title": "DeviceReportVO"
+    },
+    "DeviceStatusEditDTO": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设备运行状态",
+          "refType": null
+        }
+      },
+      "title": "DeviceStatusEditDTO",
+      "description": "控制设备运行状态时传递的数据模型"
+    },
+    "LocalTimeReq": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "string",
+          "format": "byte",
+          "refType": null
+        },
+        "minute": {
+          "type": "string",
+          "format": "byte",
+          "refType": null
+        },
+        "nano": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "second": {
+          "type": "string",
+          "format": "byte",
+          "refType": null
+        }
+      },
+      "title": "LocalTimeReq"
+    },
+    "LocalTimeRes": {
+      "type": "object",
+      "properties": {
+        "hour": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "minute": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "nano": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        },
+        "second": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        }
+      },
+      "title": "LocalTimeRes"
+    },
+    "PageResult": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "refType": "object"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        }
+      },
+      "title": "PageResult"
+    },
+    "PasswordEditDTO": {
+      "type": "object",
+      "properties": {
+        "newPassword": {
+          "type": "string",
+          "refType": null
+        },
+        "oldPassword": {
+          "type": "string",
+          "refType": null
+        }
+      },
+      "title": "PasswordEditDTO"
+    },
+    "PolicyDTO": {
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "设备ID",
+          "refType": null
+        },
+        "name": {
+          "type": "string",
+          "description": "策略名称",
+          "refType": null
+        }
+      },
+      "title": "PolicyDTO",
+      "description": "新增策略时传递的数据模型"
+    },
+    "PolicyItem": {
+      "type": "object",
+      "properties": {
+        "endTime": {
+          "$ref": "#/definitions/LocalTimeRes",
+          "originalRef": "LocalTimeRes",
+          "refType": "LocalTimeRes"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "startTime": {
+          "$ref": "#/definitions/LocalTimeRes",
+          "originalRef": "LocalTimeRes",
+          "refType": "LocalTimeRes"
+        }
+      },
+      "title": "PolicyItem"
+    },
+    "PolicyItemDTO": {
+      "type": "object",
+      "properties": {
+        "endTime": {
+          "description": "结束时间，格式：HH:mm:ss",
+          "$ref": "#/definitions/LocalTimeReq",
+          "originalRef": "LocalTimeReq",
+          "refType": "LocalTimeReq"
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "模式ID",
+          "refType": null
+        },
+        "policyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID",
+          "refType": null
+        },
+        "startTime": {
+          "description": "开始时间，格式：HH:mm:ss",
+          "$ref": "#/definitions/LocalTimeReq",
+          "originalRef": "LocalTimeReq",
+          "refType": "LocalTimeReq"
+        }
+      },
+      "title": "PolicyItemDTO",
+      "description": "新增策略条目时传递的数据模型"
+    },
+    "PolicyItemEditDTO": {
+      "type": "object",
+      "properties": {
+        "endTime": {
+          "description": "结束时间，格式：HH:mm:ss",
+          "$ref": "#/definitions/LocalTimeReq",
+          "originalRef": "LocalTimeReq",
+          "refType": "LocalTimeReq"
+        },
+        "modeId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "模式ID",
+          "refType": null
+        },
+        "startTime": {
+          "description": "开始时间，格式：HH:mm:ss",
+          "$ref": "#/definitions/LocalTimeReq",
+          "originalRef": "LocalTimeReq",
+          "refType": "LocalTimeReq"
+        }
+      },
+      "title": "PolicyItemEditDTO",
+      "description": "修改策略条目时传递的数据模型"
+    },
+    "PolicyNameEditDTO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "策略名称",
+          "refType": null
+        }
+      },
+      "title": "PolicyNameEditDTO",
+      "description": "修改策略名称时传递的数据模型"
+    },
+    "PolicyVO": {
+      "type": "object",
+      "properties": {
+        "createtime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间",
+          "refType": null
+        },
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "设备ID",
+          "refType": null
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "策略ID",
+          "refType": null
+        },
+        "itemCount": {
+          "type": "integer",
+          "format": "int32",
+          "description": "策略条目数量",
+          "refType": null
+        },
+        "name": {
+          "type": "string",
+          "description": "策略名称",
+          "refType": null
+        },
+        "updatetime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间",
+          "refType": null
+        }
+      },
+      "title": "PolicyVO",
+      "description": "策略视图对象"
+    },
+    "ReportQueryDTO": {
+      "type": "object",
+      "properties": {
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "refType": null
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "refType": null
+        }
+      },
+      "title": "ReportQueryDTO"
+    },
+    "Result«AlertReportResultDTO»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "$ref": "#/definitions/AlertReportResultDTO",
+          "originalRef": "AlertReportResultDTO"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«AlertReportResultDTO»"
+    },
+    "Result«DeviceReportResultDTO»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "$ref": "#/definitions/DeviceReportResultDTO",
+          "originalRef": "DeviceReportResultDTO"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«DeviceReportResultDTO»"
+    },
+    "Result«List«BatchItem»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BatchItem",
+            "originalRef": "BatchItem"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«List«BatchItem»»"
+    },
+    "Result«List«DeviceDataVO»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeviceDataVO",
+            "originalRef": "DeviceDataVO"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«List«DeviceDataVO»»"
+    },
+    "Result«List«DeviceModeVO»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeviceModeVO",
+            "originalRef": "DeviceModeVO"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«List«DeviceModeVO»»"
+    },
+    "Result«List«PolicyItem»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PolicyItem",
+            "originalRef": "PolicyItem"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«List«PolicyItem»»"
+    },
+    "Result«List«PolicyVO»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PolicyVO",
+            "originalRef": "PolicyVO"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«List«PolicyVO»»"
+    },
+    "Result«PageResult»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "$ref": "#/definitions/PageResult",
+          "originalRef": "PageResult"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«PageResult»"
+    },
+    "Result«UserLoginVO»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "$ref": "#/definitions/UserLoginVO",
+          "originalRef": "UserLoginVO"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«UserLoginVO»"
+    },
+    "Result«string»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "Result«string»"
+    },
+    "UserDTO": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "refType": null
+        },
+        "username": {
+          "type": "string",
+          "refType": null
+        }
+      },
+      "title": "UserDTO",
+      "description": "用户注册时传递的数据模型"
+    },
+    "UserEditTypeDTO": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "integer",
+          "format": "int32",
+          "refType": null
+        }
+      },
+      "title": "UserEditTypeDTO",
+      "description": "用户登录时传递的数据模型"
+    },
+    "UserLoginDTO": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "description": "密码",
+          "refType": null
+        },
+        "username": {
+          "type": "string",
+          "description": "用户名",
+          "refType": null
+        }
+      },
+      "title": "UserLoginDTO",
+      "description": "用户登录时传递的数据模型"
+    },
+    "UserLoginVO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        },
+        "openid": {
+          "type": "string",
+          "refType": null
+        },
+        "token": {
+          "type": "string",
+          "refType": null
+        },
+        "username": {
+          "type": "string",
+          "refType": null
+        }
+      },
+      "title": "UserLoginVO",
+      "description": "用户登录信息"
+    },
+    "UsernameEditDTO": {
+      "type": "object",
+      "properties": {
+        "newUsername": {
+          "type": "string",
+          "refType": null
+        }
+      },
+      "title": "UsernameEditDTO"
+    }
+  }
+}
