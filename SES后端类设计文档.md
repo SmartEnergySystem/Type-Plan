@@ -1,6 +1,6 @@
 # SES后端类设计文档
 
-**更新时间**：2025年6月12日
+**更新时间**：2025年6月15日
 **作者**：Huangyijun
 
  
@@ -11,6 +11,8 @@
 
 2.对于可选参数，前端可以在请求体中仅传入部分参数，而Spring在接收这些请求时会自动将未传入的属性设为`null`
 
+3.除了注册和登录的所有请求，都需要在请求头传入jwt令牌，字段名为token
+
 ## User类
 
 1. **userController**
@@ -20,7 +22,6 @@
 | 用户注册           | POST | `/api/user`                      | 注册用户账号（只能注册普通账号） | `username``password`             |                              |
 | 用户登录           | POST | `/api/user/login`                | 用户登录并获取 Token             | `username``password`             | `token:令牌``type：账户类型` |
 | Token 刷新         | POST | `/api/user/refresh`              | 刷新过期的 Token                 | `oldToken`                       | `token`                      |
-| 修改用户名         | PUT  | `/api/user/editUsername`         | 用户修改自己的用户名             | `newUsername`                    |                              |
 | 修改密码           | PUT  | `/api/user/editPassword`         | 用户修改自己的密码               | `oldPassword``newPassword`       |                              |
 | 根据账号id修改权限 | PUT  | `/api/user/{id}/type`            | （管理员）修改某个账号权限       | `type`                           |                              |
 | 分页查询           | GET  | `/api/user/page`                 | （管理员）分页查询用户           | `page``pageSize`可选：`username` | (pageResult)                 |
@@ -55,7 +56,7 @@ getByID
 | 新增设备               | POST | `/api/device`           | 新增设备（这里使用后端内置设备类型）                         | `name:设备名称``type:内置设备类型`              |                            |
 | 删除设备               | DEL  | `/api/device/{id}`      | 删除设备                                                     |                                                 |                            |
 | 分页查询               | GET  | `/api/device/page`      | 根据用户id分页查询设备（不包括设备模式）可以输入设备名称以筛选 | `page``pageSize`可选：`name：设备名称`          | (pageResult)               |
-| 根据设备id查询模式信息 | GET  | `/api/device/{id}/mode` | 根据设备id查询设备的所有模式信息                             |                                                 | (list，包括各模式id与名称) |
+| 根据设备id查询模式信息 | GET  | `/api/device/{id}/mode` | 根据设备id查询模式信息                                       |                                                 | (list，包括各模式id与名称) |
 | 修改设备名称           | PUT  | /api/device/{id}/name   | 修改设备名称                                                 | `name`                                          |                            |
 | 修改设备策略           | POST | /api/device/{id}/policy | 修改设备应用的策略（isApplyPolicy=0时表示解绑策略，=1时表示应用policyId） | `isApplyPolicy``policyId`                       |                            |
 | 控制设备运行状态       | POST | /api/device/{id}/status | 控制设备运行状态                                             | `status`                                        |                            |
@@ -63,6 +64,8 @@ getByID
 | 控制设备               | POST | /api/device/{id}        | 修改设备的策略、状态、模式（isApplyPolicy=null表示不对策略属性做任何操作） | 可选：`isApplyPolicy``policyId``status``modeId` |                            |
 
 新增设备、分页查询等不需要传入用户id，这部分通过jwt提取
+
+“内置设备类型”见内置模拟设备详单中各设备的中文名称
 
 1. **deviceService**
 
@@ -138,8 +141,6 @@ getByID
 | 修改条目内容           | PUT  | /api/policyItem/{id}                | 修改条目内容           | 可选:`startTime``endTime``modeId`      |                          |
 | 根据策略id删除策略条目 | DEL  | `/api/policyItem/policy/{policyId}` | 删除策略的所有策略条目 |                                        |                          |
 
-注：策略条目的时间格式请用"00:36:18"（仅时分秒）
-
 1. **policy****Item****Service**
 
 按接口开发
@@ -158,35 +159,18 @@ deleteById
 
 
 
-修正：我们现在的策略实际上是“日策略”，即其中时间点不超过24h，策略按日循环执行
-
-
-
-理论上，还可以有周策略，即星期几应用什么日策略，按周循环执行
-
-然后，可以给设备应用日策略或者周策略，策略监测模块自动判断并执行
-
-或者从预订的角度考虑，也可能有“定时到x月x日”的需求
-
-再者，有时设置策略未必是需要强制设备开关机，而只是设置“运行时策略”，即在这个时间段，我如果需要开启这台设备的话，它使用什么模式运行。
-
-考虑到工期与先期设计的不足，以上更详细的策略设计暂时无法实现
-
-
-
 ## Batch类
 
 批量操作类
 
 1. **batchController**
 
-| 接口名称         | 方法 | 端点                  | 描述                               | 请求体                                  | 响应（data部分） |
-| ---------------- | ---- | --------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
-| 新增批量操作     | POST | `/api/batch`          | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
-| 删除批量操作     | DEL  | /api/batch/{id}       | 删除批量操作                       |                                         |                  |
-| 分页查询         | GET  | `/api/batch/page`     | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
-| 修改批量操作名称 | PUT  | /api/batch/{id}/name  | 修改批量操作名称                   | `name`                                  |                  |
-| 应用批量操作     | POST | /api/batch/{id}/apply | 应用批量操作                       |                                         |                  |
+| 接口名称         | 方法 | 端点                 | 描述                               | 请求体                                  | 响应（data部分） |
+| ---------------- | ---- | -------------------- | ---------------------------------- | --------------------------------------- | ---------------- |
+| 新增批量操作     | POST | `/api/batch`         | 新增批量操作（不包括条目）         | `name:批量操作名`                       |                  |
+| 删除批量操作     | DEL  | /api/batch/{id}      | 删除批量操作                       |                                         |                  |
+| 分页查询         | GET  | `/api/batch/page`    | 根据用户分页查询可以输入名称以筛选 | `page``pageSize`可选：`name:批量操作名` | (pageResult)     |
+| 修改批量操作名称 | PUT  | /api/batch/{id}/name | 修改批量操作名称                   | `name`                                  |                  |
 
 新增批量操作、分页查询等不需要传入用户id，这部分通过jwt提取
 
@@ -248,38 +232,20 @@ deleteById
 
 1. **deviceDataController**
 
-| 接口名称               | 方法 | 端点                             | 描述                                       | 请求体               | 响应（data部分）                                      |
-| ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------------------- | ----------------------------------------------------- |
-| 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList`             | (list，每项为一个设备的运行状态、模式名、功率、策略） |
-| 根据设备id查询设备报表 | POST | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
-| 根据设备id查询警报报表 | POST | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
-| 根据设备id查询操作报表 | POST | /api/device/{id}/operationReport | 根据设备id查询操作报表                     | `startTime``endTime` | (list，每项为简化的日志）                             |
-
-注：查询报表的时间格式请用"2025-06-11 00:36:18"
+| 接口名称               | 方法 | 端点                             | 描述                                       | 请求体   | 响应（data部分）                                      |
+| ---------------------- | ---- | -------------------------------- | ------------------------------------------ | -------- | ----------------------------------------------------- |
+| 根据设备id查询设备状态 | GET  | /api/device/data                 | 根据设备id查询设备状态，可一次查询多个设备 | `idList` | (list，每项为一个设备的运行状态、模式名、功率、策略） |
+| 根据设备id查询设备报表 | GET  | /api/device/{id}/deviceReport    | 根据设备id查询设备报表                     |          | (list，每项为简化的日志）                             |
+| 根据设备id查询警报报表 | GET  | /api/device/{id}/alertReport     | 根据设备id查询警报报表                     |          | (list，每项为简化的日志）                             |
+| 根据设备id查询操作报表 | GET  | /api/device/{id}/operationReport | 根据设备id查询操作报表                     |          | (list，每项为简化的日志）                             |
 
 1. **deviceDataService**
 
 查询设备当前状态：
 
-返回DeviceDataVO列表
+返回deviceDataVO列表（deviceId，status，modeName，power，policy）
 
 getDataByDeviceID(idList)
-
-查询redis缓存，如果redis中没有，就说明没有实时数据
-
-没有实时数据时，从设备日志表查询最新的日志，作为设备最后已知状态
-
-
-
-DeviceDataVO：
-
-（deviceId，status，modeName，power，policyName，isRealTime，lastUpdatedTime）
-
-如果是实时数据，则isRealTime=1
-
-如果不是实时数据，则isRealTime=0，然后提供lastUpdatedTime
-
-
 
 
 
@@ -287,11 +253,9 @@ DeviceDataVO：
 
 提取日志的重要信息，以用于生成状态曲线、模式曲线、策略曲线、功率曲线、耗电量曲线
 
-同时提供计算后的总耗电量（忽略异常数值）
+同时提供计算后的总耗电量
 
 getDeviceReportByDeviceID(id，startTime， endTime)
-
-
 
 
 
@@ -300,18 +264,6 @@ getDeviceReportByDeviceID(id，startTime， endTime)
 从警报日志中提取
 
 getAlertReportByDeviceID(id，startTime， endTime)
-
-
-
-关于警报日志：
-
-当设备发生故障，只会记录第一次警报，后续不会持续记录
-
-直到设备恢复，再记录level=“恢复正常”的警报日志
-
-
-
-
 
 
 
@@ -363,111 +315,13 @@ private void saveDeviceStatusToDatabase(Long deviceId, DeviceStatusDTO)
 
 
 
-定时调用设备查询api，得到DeviceQueryApiResultDTO（status，modeName，power）存入redis。
-
-redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeName，power）
-
-其中status，modeName，power在每次轮询时修改。
-
-
-
-根据前[设备轮询间隔]作为startTime，当前时间作为endtime，计算用电量。
+定时调用设备查询api，根据前[设备轮询间隔]作为startTime，当前时间作为Endtime，计算用电量。
 
 然后记录日志
 
 
 
 此外定期监控用电量，进行预警
-
-
-
-关于redis储存设备数据：
-
-在redis中，一个设备只能有一条信息（同key自动覆盖），储存时间戳，60秒后删除。
-
-查询时判断时间戳，距今小于10秒则为实时数据
-
-## DeviceMonitor类
-
-设备监测类，使用定时任务 + 异步处理+线程池进行轮询，使用Redis进行缓存+状态变更检测+异步批量落盘减少数据库操作
-
-（流程详见设备模拟建议）
-
-
-
-1. **deviceMonitorService**
-
-定时调用设备查询api，得到DeviceQueryApiResultDTO（status，modeName，power）存入redis。
-
-redis为每个设备维护一个deviceDataRedisDTO（deviceId，status，modeName，power，lastUpdatedTime）
-
-其中status，modeName，power在每次轮询时修改。
-
-
-
-根据前[设备轮询间隔]作为startTime，当前时间作为endtime，计算用电量。
-
-然后记录日志
-
-
-
-此外定期监控用电量，进行预警
-
-
-
-关于redis储存设备数据：
-
-在redis中，一个设备只能有一条信息（同key自动覆盖），储存时间戳，60秒后删除。
-
-查询时判断时间戳，距今小于10秒则为实时数据
-
-
-
-## PolicyMonitor类
-
-负责跟踪设备策略，根据策略调用设备的控制api
-
-为每个设备设置一个“时间队列”缓存，记录其策略中所有时间点
-
-为设备再维护一个“任务线程”的线程池，使用工厂模式发布延时任务
-
-当一个任务完成时，自动计算并刷新下一个任务
-
-
-
-此外任务具有自动或强制刷新，每30分钟自动重新计算所有设备的任务。当策略的应用情况或策略内容改变时，使用消息队列通知相应设备刷新。
-
-
-
-
-
-1. **policyMonitorService**
-
-重新计算并发布单个设备的延时任务：
-
-如有旧任务，先清除旧任务
-
-refreshTaskByDeviceId（deviceId）
-
-
-
-监听来自“策略的应用情况或策略内容改变”的rabbitMQ消息（内容为deviceId）：
-
-调用PolicyTimePointCache的刷新并同步等待
-
-为该设备重新计算并发布任务
-
-onRefreshTaskByDeviceId（）
-
-
-
-任务的具体逻辑：
-
-查询该时间点对应的策略条目，得到任务内容（状态与模式名）
-
-根据任务内容调用设备控制api
-
-
 
 
 
@@ -519,10 +373,6 @@ LOG_COMMON_REFRESH_INTERVAL = 5 * 60 * 1000;
 
 saveAlertLog(AlertLogSaveDTO)
 
-
-
-操作日志暂不实现
-
 saveOperationLog(OperationLogSaveDTO)
 
 
@@ -541,9 +391,7 @@ queryOperationLog(LogQueryDTO)
 
 未来升级考虑：
 
-1.接收消息队列而不是被直接调用
-
-2.日志先缓存，再定时批量落盘
+日志先缓存，再定时批量落盘
 
 
 
@@ -569,11 +417,11 @@ deviceInitApi（deviceId，type）
 
 为deviceId设备发布控制指令（实际为修改sim_device表）
 
-deviceControlApi（deviceId，status，modeName）
+deviceControlApi（deviceId，status，modeId）
 
 
 
-查询api：
+查询api
 
 查询deviceId设备的当前状态（实际为查询sim_device和sim_device_mode表）
 
@@ -621,13 +469,9 @@ deviceQueryApi（deviceId）
 
 负责管理全设备id的缓存。
 
-使用Caffeine进行本地缓存
-
-自动刷新，或监听RabbitMQ消息队列以强制刷新
-
 1. **deviceIdCacheService**
 
-get（）
+getAllDeviceId（）
 
 
 
@@ -635,49 +479,27 @@ get（）
 
 负责管理日志常用字段的缓存。
 
-使用Caffeine进行本地缓存
-
-自动刷新，或监听RabbitMQ消息队列以强制刷新
-
 强制刷新包括用户名、设备名、策略3种，其中用户名、设备名可以直接修改缓存，不用查表
 
 对于新建设备的情况，则查表以新建整个缓存项
 
 1. **logCommonCacheService**
 
-get（deviceId）
+getAllDeviceId（）
 
 
 
-## PolicyTimePointCache类
+所有缓存类使用Caffeine进行本地缓存
 
-负责管理各设备所应用策略的时间点列表。
+具有刷新函数，包括自动刷新，或监听RabbitMQ消息队列以强制刷新
 
-各项同上
-
-1. **policyTimePointService**
-
-get（deviceId）
+调用方法有直接调用、尝试重试、尝试重试且返回兜底数据三种
 
 
 
-## AbstractCacheService类
+补充：三种调用方法可以由切面类或者抽象接口完成。
 
-抽象类，为所有缓存类提供了初始化以及三个级别的get接口
-
-分别为：
-
-1.直接从缓存获取
-
-2.缓存没有则尝试刷新（一定次数）
-
-3.尝试刷新，失败提供兜底数据
-
-
-
-## PolicyTaskFactoryService类
-
-工厂类，用于生成策略任务的运行实例
+最后改为抽象接口了
 
 
 
